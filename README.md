@@ -1,59 +1,159 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Attendance Management System (AMS) — Setup & Workflow
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This document explains how to set up, run, and contribute to the Attendance Management System (AMS) on Windows using WSL2, Docker, and Laravel Sail.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 1️⃣ Prerequisites
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Make sure you have the following installed:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (with WSL2 enabled)
+- [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install)
+- [VS Code](https://code.visualstudio.com/) with **Remote - WSL** extension
+- [Git](https://git-scm.com/) installed in WSL
+- Optional: [Node.js & npm](https://nodejs.org/) in WSL if not using Sail’s Node container
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 2️⃣ First-Time Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2.1 Clone the Repository
 
-## Laravel Sponsors
+Open WSL terminal:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+cd ~
+mkdir -p code
+cd code
+git clone https://github.com/Lunacy-simplified/Attendance-Management-System
+cd Attendance-Management-System
 
-### Premium Partners
+2.2 Set permissions
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+sudo chown -R $USER:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
 
-## Contributing
+This ensures Laravel can write logs and cache files.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2.3 Start Sail & Install Dependencies
 
-## Code of Conduct
+Start Docker containers:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+./vendor/bin/sail up -d
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Install PHP dependencies:
 
-## License
+./vendor/bin/sail composer install
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+Install Node dependencies (inside Sail container):
+
+./vendor/bin/sail npm install
+
+2.4 Environment Setup
+
+Copy the example environment file:
+
+cp .env.example .env
+
+
+Generate the application key:
+
+./vendor/bin/sail artisan key:generate
+
+2.5 Database Setup
+
+Run migrations to create tables:
+
+./vendor/bin/sail artisan migrate
+
+
+If you need seed data:
+
+./vendor/bin/sail artisan db:seed
+
+
+2.6 Build Frontend Assets
+
+For development:
+
+./vendor/bin/sail npm run dev
+
+
+For production:
+
+./vendor/bin/sail npm run build
+
+3️⃣ Running the Application
+
+Once Sail is up, open your browser:
+
+http://localhost
+
+
+No need to run php artisan serve; Sail’s Nginx serves the app.
+
+To stop containers:
+
+./vendor/bin/sail down
+
+4️⃣ Git Workflow
+4.1 Pushing Changes
+
+Make your changes in VS Code (connected to WSL project)
+
+Stage & commit:
+
+git add .
+git commit -m "Describe your changes"
+
+
+Push to GitHub:
+
+git push origin main
+
+4.2 Pulling Changes
+git pull origin main
+
+
+If using Sail, make sure to rebuild containers if dependencies changed:
+
+./vendor/bin/sail composer install
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run build
+
+4.3 Rebuilding Containers
+
+If you need to rebuild Docker containers (e.g., after changing PHP version or docker-compose.yml):
+
+./vendor/bin/sail build --no-cache
+./vendor/bin/sail up -d
+
+5️⃣ Troubleshooting
+
+Permission errors on storage/logs or bootstrap/cache:
+
+sudo chown -R $USER:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+
+Database table missing errors:
+
+./vendor/bin/sail artisan migrate
+
+
+Assets not showing or broken styles:
+
+./vendor/bin/sail npm run build
+
+6️⃣ Notes
+
+Windows folder vs WSL folder:
+
+You can edit files in Windows (GitHub Desktop) or WSL (VS Code Remote).
+
+Sail always uses the WSL path for Docker mounting.
+
+Always use Sail for running PHP commands (composer, artisan) to avoid local PHP issues.
