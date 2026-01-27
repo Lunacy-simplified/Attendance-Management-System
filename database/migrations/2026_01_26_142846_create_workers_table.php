@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('passport_number')->unique();
             $table->string('first_name');
             $table->string('last_name');
-            $table->decimal('basic_salary', 10, 2);
+            $table->decimal('daily_rate', 10, 2);
             $table->decimal('ot_rate', 10, 2);
             $table->timestamps();
         });

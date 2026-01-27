@@ -15,14 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('worker_id')->constrained()->cascadeOnDelete();
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
 
             $table->date('date');
             $table->string('status');
-            $table->decimal('ot_hours', 5, 2)->nullable();
+            $table->decimal('ot_hours', 5, 2)->default(0);
 
-            $table->decimal('salary_effective_rate', 10, 2);
-            $table->decimal('ot_effective_rate', 10, 2);
+            $table->decimal('salary_effective_rate', 10, 2); // snapshot of daily_rate
+            $table->decimal('ot_effective_rate', 10, 2);    // snapshot of ot_rate
 
             $table->timestamps();
 
