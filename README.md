@@ -1,159 +1,93 @@
-# Attendance Management System (AMS) — Setup & Workflow
+Attendance Management System (AMS)
+A Laravel-based attendance system running on Docker via Laravel Sail.
 
-This document explains how to set up, run, and contribute to the Attendance Management System (AMS) on Windows using WSL2, Docker, and Laravel Sail.
+🛠 Prerequisites
+Windows 10/11 with WSL2 enabled.
 
----
+Docker Desktop (configured to use the WSL2 backend).
 
-## 1️⃣ Prerequisites
+VS Code with the WSL Extension installed.
 
-Make sure you have the following installed:
+⚠️ Important: All commands below must be run inside your Ubuntu/WSL terminal, not PowerShell or Git Bash.
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (with WSL2 enabled)
-- [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install)
-- [VS Code](https://code.visualstudio.com/) with **Remote - WSL** extension
-- [Git](https://git-scm.com/) installed in WSL
-- Optional: [Node.js & npm](https://nodejs.org/) in WSL if not using Sail’s Node container
+🚀 Setup (First Time)
 
----
+1. Clone the Repository
+   Bash
 
-## 2️⃣ First-Time Setup
-
-### 2.1 Clone the Repository
-
-Open WSL terminal:
-
-```bash
-cd ~
-mkdir -p code
-cd code
 git clone https://github.com/Lunacy-simplified/Attendance-Management-System
-cd Attendance-Management-System
+cd Attendance-Management-System 2. Install Dependencies (The "Magic" Step)
+Since you don't have PHP installed locally, use this Docker command to install the project's PHP libraries (including Sail):
 
-2.2 Set permissions
+Bash
 
-sudo chown -R $USER:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
+docker run --rm \
+ -u "$(id -u):$(id -g)" \
+ -v "$(pwd):/var/www/html" \
+ -w /var/www/html \
+ laravelsail/php83-composer:latest \
+ composer install --ignore-platform-reqs 3. Configure Environment
+Create your .env file:
 
-This ensures Laravel can write logs and cache files.
+Bash
 
-2.3 Start Sail & Install Dependencies
+cp .env.example .env 4. Start the Application
+Now that dependencies are installed, start the Docker containers:
 
-Start Docker containers:
+Bash
 
-./vendor/bin/sail up -d
+./vendor/bin/sail up -d 5. Finalize Setup
+Generate the app key and set up the database:
 
-
-Install PHP dependencies:
-
-./vendor/bin/sail composer install
-
-
-Install Node dependencies (inside Sail container):
-
-./vendor/bin/sail npm install
-
-2.4 Environment Setup
-
-Copy the example environment file:
-
-cp .env.example .env
-
-
-Generate the application key:
+Bash
 
 ./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+✅ Done! Access the site at: http://localhost
 
-2.5 Database Setup
+💻 Daily Usage
+Start & Stop
+Start server: ./vendor/bin/sail up -d
 
-Run migrations to create tables:
+Stop server: ./vendor/bin/sail down
+
+Running Commands
+Always prefix commands with ./vendor/bin/sail so they run inside Docker:
 
 ./vendor/bin/sail artisan migrate
 
+./vendor/bin/sail composer require [package]
 
-If you need seed data:
+Pro Tip: Add an alias to your ~/.bashrc file so you can just type sail instead of the full path: alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 
-./vendor/bin/sail artisan db:seed
+🐙 Git Workflow
+Pushing Changes
+Make edits in VS Code (connected to WSL).
 
+Stage and commit:
 
-2.6 Build Frontend Assets
-
-For development:
-
-./vendor/bin/sail npm run dev
-
-
-For production:
-
-./vendor/bin/sail npm run build
-
-3️⃣ Running the Application
-
-Once Sail is up, open your browser:
-
-http://localhost
-
-
-No need to run php artisan serve; Sail’s Nginx serves the app.
-
-To stop containers:
-
-./vendor/bin/sail down
-
-4️⃣ Git Workflow
-4.1 Pushing Changes
-
-Make your changes in VS Code (connected to WSL project)
-
-Stage & commit:
+Bash
 
 git add .
-git commit -m "Describe your changes"
-
-
+git commit -m "Description of changes"
 Push to GitHub:
 
+Bash
+
 git push origin main
+Pulling Changes
+Download latest code:
 
-4.2 Pulling Changes
+Bash
+
 git pull origin main
+Crucial: If the update changed dependencies, rebuild your environment:
 
-
-If using Sail, make sure to rebuild containers if dependencies changed:
+Bash
 
 ./vendor/bin/sail composer install
 ./vendor/bin/sail npm install
 ./vendor/bin/sail npm run build
-
-4.3 Rebuilding Containers
-
-If you need to rebuild Docker containers (e.g., after changing PHP version or docker-compose.yml):
-
-./vendor/bin/sail build --no-cache
-./vendor/bin/sail up -d
-
-5️⃣ Troubleshooting
-
-Permission errors on storage/logs or bootstrap/cache:
-
-sudo chown -R $USER:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-
-
-Database table missing errors:
-
 ./vendor/bin/sail artisan migrate
-
-
-Assets not showing or broken styles:
-
-./vendor/bin/sail npm run build
-
-6️⃣ Notes
-
-Windows folder vs WSL folder:
-
-You can edit files in Windows (GitHub Desktop) or WSL (VS Code Remote).
-
-Sail always uses the WSL path for Docker mounting.
-
-Always use Sail for running PHP commands (composer, artisan) to avoid local PHP issues.
