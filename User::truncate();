@@ -1,0 +1,16 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#1337
+    [34mall[39m: [
+      [34;4mApp\Models\User[39;24m {#6043
+        [34mid[39m: [35m2[39m,
+        [34mpassport_number[39m: "[32m000000[39m",
+        [34musername[39m: "[32madmin[39m",
+        [34mname[39m: "[32mSuper Admin[39m",
+        #[33mpassword[39m: "[32m$2y$12$roy70KQuw91P7zPqukcH9uSC4uaF3QPGZdv/2KkZO9Cj30jYQrK1u[39m",
+        [34mrole[39m: "[32madmin[39m",
+        #[33mremember_token[39m: [36mnull[39m,
+        [34mcreated_at[39m: "[32m2026-01-28 12:16:56[39m",
+        [34mupdated_at[39m: "[32m2026-01-28 12:16:56[39m",
+      },
+    ],
+  }
+

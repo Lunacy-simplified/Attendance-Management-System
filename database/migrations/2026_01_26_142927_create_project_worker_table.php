@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('worker_id')->constrained()->cascadeOnDelete();
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-            $table->date('assigned_at');
+            $table->date('assigned_at')->useCurrent();
             $table->date('unassigned_at')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();

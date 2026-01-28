@@ -62,7 +62,7 @@ class Attendance extends Model
         }
 
         // OT Calculation
-        if ($this->at_hours > 0) {
+        if ($this->ot_hours > 0) {
             $otPay = $this->ot_hours * $this->ot_effective_rate;
         }
 
