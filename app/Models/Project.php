@@ -26,7 +26,7 @@ class Project extends Model
     // supervisors assigned to this project
     public function supervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'project_user')
+        return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id')
                     ->withPivot('assigned_at')
                     ->withTimestamps();
     }

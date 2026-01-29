@@ -8,11 +8,48 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     // GET /api/projects
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
+        // superuser sees everything
+        if ($user->role === 'superuser') {
+            return response()->json([
+                'status' => true,
+                'data' => Project::all()
+            ]);
+        }
+
+        // supervisor sees only thei assigned projects
         return response()->json([
             'status' => true,
-            'data' => [Project::all()],
+            'data' => $user->projects
+        ]);
+    }
+
+    // POST /api/projects/{id}/assign-supervisor
+    public function assignSupervisor(Request $request, $id)
+    {
+        // security check
+        if ($request->user()->role !== 'superuser') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $project = Project::findOrFail($id);
+
+        // assign the supervisor
+        // syncWithoutDetaching ensures we don't accidentally remove other supervisors
+        $project->supervisors()->syncWithoutDetaching([
+            $request->user_id => ['assigned_at' => now()]
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Supervisor assigned successfully',
         ]);
     }
 
@@ -60,6 +97,23 @@ class ProjectController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Worker assigned to project successfully',
+        ]);
+    }
+
+    // GET /api/projects/{id}/workers
+    public function getWorkers($id)
+    {
+        $project = Project::with('workers')->find($id);
+        if (!$project) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Project not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $project->workers,
         ]);
     }
 }

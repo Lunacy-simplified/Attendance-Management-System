@@ -38,4 +38,15 @@ class AuthController extends Controller
             'role' => $user->role,
         ]);
     }
+
+    // POST /api/logout
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Logout successful',
+        ]);
+    }
 }
