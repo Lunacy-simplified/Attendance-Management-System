@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\AttendanceController;
-
+use App\Http\Controllers\ReportController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -32,4 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Attendance
     Route::get('/attendance', [AttendanceController::class, 'index']);
     Route::post('/attendance', [AttendanceController::class, 'store']);
+
+    // Reports
+    Route::get('/export/attendance', [ReportController::class, 'export']);
 });

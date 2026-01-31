@@ -26,6 +26,7 @@ class WorkerController extends Controller
             'passport_number' => 'required|string|unique:workers,passport_number',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
             'daily_rate' => 'required|numeric|min:0',
             'ot_rate' => 'required|numeric|min:0',
         ]);

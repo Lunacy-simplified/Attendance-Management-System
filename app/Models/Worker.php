@@ -12,6 +12,8 @@ class Worker extends Model
         'passport_number',
         'first_name',
         'last_name',
+        'country',
+        'designation',
         'daily_rate',
         'ot_rate',
     ];
