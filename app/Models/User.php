@@ -49,6 +49,6 @@ class User extends Authenticatable
     // helper to chek if admin
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return $this->role === UserRole::SUPERUSER;
     }
 }
