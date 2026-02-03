@@ -9,12 +9,21 @@ use Illuminate\Http\Request;
 class AttendanceController extends Controller
 {
     // GET /api/attendance
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-            'status' => true,
-            'data' => [Attendance::with(['worker', 'project'])->latest()->get()],
-        ]);
+        $query = Attendance::with('worker');
+
+        // filter by date (default to today)
+        if ($request->has('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        // filter by project
+        if ($request->has('date')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        return response()->json($query->latest()->get());
     }
 
     // POST /api/attendance
@@ -50,29 +59,5 @@ class AttendanceController extends Controller
             'message' => 'Attendance record created successfully',
             'data' => $attendance,
         ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

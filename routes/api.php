@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects', [ProjectController::class, 'store']);
     Route::post('/projects/{id}/assign', [ProjectController::class, 'assignWorker']);
     Route::post('/projects/{id}/assign-supervisor', [ProjectController::class, 'assignSupervisor']);
+    Route::get('/my-projects', [ProjectController::class, 'myProjects']);
 
     // Attendance
     Route::get('/attendance', [AttendanceController::class, 'index']);
@@ -35,4 +36,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reports
     Route::get('/export/attendance', [ReportController::class, 'export']);
+    Route::get('/reports/monthly', [ReportController::class, 'monthly']);
 });

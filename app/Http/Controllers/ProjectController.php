@@ -53,6 +53,20 @@ class ProjectController extends Controller
         ]);
     }
 
+    // GET /api/my-projects
+    public function myProjects(Request $request)
+    {
+        $user = $request->user();
+
+        // if superuser, return all projects
+        if ($user->role === 'superuser') {
+            return response()->json(Project::all());
+        }
+
+        // if supervisor, return only assigned projects
+        return response()->json($user->projects);
+    }
+
     
     // POST /api/projects
     public function store(Request $request)
