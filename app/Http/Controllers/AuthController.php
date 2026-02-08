@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,6 +37,57 @@ class AuthController extends Controller
             'access_token' => $token,
             'user' => $user,
             'role' => $user->role,
+        ]);
+    }
+
+    // POST /api/users
+    public function register(Request $request)
+    {
+        if ($request->user()->role !== UserRole::SUPERUSER) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'passport_number' => 'required|string|unique:users,passport_number',
+            'username' => 'required|string|unique:users,username',
+            'name' => 'required|string',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:superuser,supervisor',
+        ]);
+
+        $user = User::create([
+            'passport_number' => $validated['passport_number'],
+            'username' => $validated['username'],
+            'name' => $validated['name'],
+            'password' => Hash::make($validated['password']),
+            'role' => UserRole::from($validated['role']),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User registered successfully',
+            'user' => $user,
+        ], 201);
+    }
+
+    // GET /api/users
+    public function index(Request $request)
+    {
+        if ($request->user()->role !== UserRole::SUPERUSER) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 403); 
+        }
+
+        $users = User::all();
+
+        return response()->json([
+            'status' => true,
+            'users' => $users,
         ]);
     }
 

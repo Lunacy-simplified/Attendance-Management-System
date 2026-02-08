@@ -18,6 +18,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    // User Management
+    Route::get('/users', [AuthController::class, 'index']);
+    Route::post('/users', [AuthController::class, 'register']);
+
     // Workers
     Route::get('/workers', [WorkerController::class, 'index']);
     Route::post('/workers', [WorkerController::class, 'store']);

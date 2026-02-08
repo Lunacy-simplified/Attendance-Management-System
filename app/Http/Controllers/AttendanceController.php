@@ -19,7 +19,7 @@ class AttendanceController extends Controller
         }
 
         // filter by project
-        if ($request->has('date')) {
+        if ($request->has('project_id')) {
             $query->where('project_id', $request->project_id);
         }
 
@@ -30,34 +30,40 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'worker_id' => 'required|exists:workers,id',
             'project_id' => 'required|exists:projects,id',
             'date' => 'required|date',
-            'status' => ['required'],
-            'ot_hours' => 'nullable|numeric|min:0',
+            'attendance' => 'required|array',
+            'attendance.*.worker_id' => 'required|exists:workers,id',
+            'attendance.*.status' => 'required|string',
+            'attendance.*.ot_hours' => 'nullable|numeric|min:0',
         ]);
 
-        // security to look up the real rates from the db
-        $worker = Worker::findorFail($validated['worker_id']);
+        $records = [];
 
-        // create attendance record
-        $attendance = Attendance::create([
-            'worker_id' => $validated['worker_id'],
-            'project_id' => $validated['project_id'],
-            'user_id' => auth()->id(),
-            'date' => $validated['date'],
-            'status' => $validated['status'],
-            'ot_hours' => $validated['ot_hours'] ?? 0,
+        foreach ($validated['attendance'] as $item) {
+            // Look up worker to get the snapshot rates
+            $worker = Worker::findOrFail($item['worker_id']);
 
-            // snapshotting, save the rates as they are rn
-            'salary_effective_rate' => $worker->daily_rate,
-            'ot_effective_rate' => $worker->ot_rate,
-        ]);
+            $records[] = Attendance::updateOrCreate(
+                [
+                    'project_id' => $validated['project_id'],
+                    'worker_id' => $item['worker_id'],
+                    'date' => $validated['date'],
+                ],
+                [
+                    'user_id' => auth()->id(),
+                    'status' => $item['status'],
+                    'ot_hours' => $item['ot_hours'] ?? 0,
+                    'salary_effective_rate' => $worker->daily_rate,
+                    'ot_effective_rate' => $worker->ot_rate,
+                ]
+            );
+        }
 
         return response()->json([
             'status' => true,
-            'message' => 'Attendance record created successfully',
-            'data' => $attendance,
+            'message' => count($records).' attendance records processed.',
+            'data' => $records,
         ], 201);
     }
 }
